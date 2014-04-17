@@ -1,0 +1,25 @@
+%macro make_archives;
+    %do k=0 %to 7;
+        %let jone = %eval(3*&k+1);
+        %let jtwo = %eval(3*&k+2);
+        %let jthree = %eval(3*&k+3);
+ 
+        systask command "/usr/local/SAS/SASFoundation/9.3/sas -work /research/data1/work -memsize 20G -sysparm &jone -log archive_&jone..log
+        -logparm open=replace p01_trended_read_in.sas " nowait taskname=arc_&jone. cleanup;
+ 
+        systask command "/usr/local/SAS/SASFoundation/9.3/sas -work /research/data2/work -memsize 20G -sysparm &jtwo -log archive_&jtwo..log
+        -logparm open=replace p01_trended_read_in.sas " nowait taskname=arc_&jtwo. cleanup;
+ 
+        systask command "/usr/local/SAS/SASFoundation/9.3/sas -work /research/data9/work -memsize 20G -sysparm &jthree -log archive_&jthree..log
+        -logparm open=replace p01_trended_read_in.sas " nowait taskname=arc_&jthree. cleanup;
+ 
+        waitfor _all_ arc_&jone. arc_&jtwo. arc_&jthree.;
+    %end;
+ 
+ 
+    systask command "/usr/local/SAS/SASFoundation/9.3/sas -work /research/data1/work -memsize 20G -sysparm 25 -log archive_25.log
+    -logparm open=replace p01_trended_read_in.sas " nowait taskname=arc_25 cleanup;
+ 
+    waitfor _all_ arc_25;
+%mend;
+%make_archives;
